@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notorious RGB</title>
+  <script src="js/phaser.min.js"></script>
+</head>
+<body>
+
+  <script>
+    var game = new Phaser.Game(800, 600, Phaser.AUTO, '',
+      { preload: preload, create: create, update: update }),
+      player,
+      cursors,
+      construction_jerk;
+
+    function preload() {
+      game.load.spritesheet('construction_jerk', 'assets/construction_jerk_idle.png', 96, 96, 2);
+      game.load.spritesheet('rbg', 'assets/rbg.png', 64, 64, 6);
+    }
+
+
+    function create() {
+      // don't antialias - we want things to look pixalated
+      game.stage.smoothed = false;
+      // sky-blue background color
+      game.stage.backgroundColor = 0x80d2ff;
+
+      player = game.add.sprite(32, game.world.height - 150, 'rbg'),
+      construction_jerk = game.add.sprite(300, game.world.height - 165, 'construction_jerk')
+      cursors = game.input.keyboard.createCursorKeys();
+
+      game.physics.arcade.enable(player);
+      game.physics.arcade.enable(construction_jerk);
+
+      construction_jerk.body.collideWorldBounds = true;
+      player.body.collideWorldBounds = true;
+
+      player.animations.add('right', [0, 1, 2], 5, true);
+      player.animations.add('left', [3, 4, 5], 5, true);
+      construction_jerk.animations.add('idle', [0, 1], 5, true);
+
+    }
+
+    function update() {
+      construction_jerk.animations.play('idle');
+      game.time.events.repeat(Phaser.Timer.SECOND * 10, 10, moveJerk, game);
+
+      player.body.velocity.x = 0;
+
+      if (cursors.left.isDown) {
+        player.body.velocity.x = -100;
+        player.animations.play('left');
+      } else if (cursors.right.isDown) {
+        player.body.velocity.x = 100;
+        player.animations.play('right');
+      }
+    }
+
+    function moveJerk() {
+      jerk_mover = game.rnd.integerInRange(1,3);
+
+      if (jerk_mover === 1) {
+        construction_jerk.body.velocity.x += 50;
+      } else if (jerk_mover === 2) {
+        construction_jerk.body.velocity.x += -50;
+      } else {
+        construction_jerk.body.velocity.x = 0;
+      }
+    }
+  </script>
+</body>
+</html>
